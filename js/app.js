@@ -39,9 +39,19 @@
       },
       checkedAnswers: {
         listening: false,
-        rw: false
+        rw: false,
+        speaking: false
       }
     };
+  }
+
+  function isModuleUnlocked(volKey, mod) {
+    if (mod === "home" || mod === "listening") return true;
+    const chk = state.volumes[volKey]?.checkedAnswers || {};
+    if (mod === "rw") return Boolean(chk.listening);
+    if (mod === "speaking") return Boolean(chk.listening && chk.rw);
+    if (mod === "results") return Boolean(chk.listening && chk.rw && chk.speaking);
+    return false;
   }
 
   const state = {
@@ -555,18 +565,38 @@
   function updateTopBadges() {
     const lEval = evaluateListening(state.currentVol);
     const rwEval = evaluateRW(state.currentVol);
+    const chk = getVolState().checkedAnswers || {};
 
     const badgeL = document.getElementById("badge-listening");
     const badgeRW = document.getElementById("badge-rw");
-    if (badgeL) badgeL.textContent = `${lEval.answeredCount}/20`;
-    if (badgeRW) badgeRW.textContent = `${rwEval.answeredCount}/25`;
+    const badgeSP = document.getElementById("badge-speaking");
+    if (badgeL) badgeL.textContent = chk.listening ? `✓ ${lEval.answeredCount}/20` : `${lEval.answeredCount}/20`;
+    if (badgeRW) badgeRW.textContent = chk.rw ? `✓ ${rwEval.answeredCount}/25` : `${rwEval.answeredCount}/25`;
+    if (badgeSP) badgeSP.textContent = chk.speaking ? "✓ Listo" : "En familia";
 
     document.querySelectorAll(".vol-pill").forEach((btn) => {
       btn.classList.toggle("active", btn.getAttribute("data-vol") === state.currentVol);
     });
 
+    const lockTooltips = {
+      listening: "Etapa 1: Listening",
+      rw: "Completá 1. Listening primero para desbloquear 2. Reading & Writing",
+      speaking: "Completá 2. Reading & Writing primero para desbloquear 3. Speaking",
+      results: "Completá 1. Listening, 2. Reading & Writing y 3. Speaking para desbloquear Resultados"
+    };
+
     document.querySelectorAll(".mod-tab").forEach((btn) => {
-      btn.classList.toggle("active", btn.getAttribute("data-mod") === state.currentMod);
+      const mod = btn.getAttribute("data-mod");
+      const unlocked = isModuleUnlocked(state.currentVol, mod);
+      btn.classList.toggle("active", mod === state.currentMod);
+      btn.classList.toggle("locked", !unlocked);
+      btn.disabled = !unlocked;
+      btn.title = unlocked ? `Ir a ${btn.textContent.trim()}` : lockTooltips[mod] || "";
+
+      const lockIconEl = btn.querySelector(".mod-lock-icon");
+      if (lockIconEl) {
+        lockIconEl.textContent = unlocked ? "" : "🔒 ";
+      }
     });
   }
 
@@ -574,11 +604,13 @@
   // 5. NAVEGACIÓN PRINCIPAL Y RENDERIZADO DE VISTAS
   // --------------------------------------------------------------------------
   function navigateTo(mod, partOptional) {
+    if (!isModuleUnlocked(state.currentVol, mod)) {
+      return;
+    }
     state.currentMod = mod;
     if (partOptional && (mod === "listening" || mod === "rw")) {
       state.currentPart[mod] = partOptional;
     }
-    // Si entramos a Listening Part 4 y tenemos puesto el lápiz negro, mantenemos el útil pero destacamos los colores
     updateTopBadges();
     updateTimerUI();
     renderMain();
@@ -588,7 +620,11 @@
   function switchVolume(volKey) {
     if (!DATA.volumes[volKey]) return;
     state.currentVol = volKey;
+    if (!isModuleUnlocked(volKey, state.currentMod)) {
+      state.currentMod = "home";
+    }
     saveState();
+    updateTimerUI();
     renderMain();
   }
 
@@ -641,13 +677,10 @@
           </p>
           <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:0.9rem;">
             <button type="button" class="btn-primary" id="hero-start-btn" style="background:#fde047;color:#1e293b;">
-              🚀 Empezar a practicar (${DATA.volumes[state.currentVol].badge})
+              🚀 Empezar 1. Listening (${DATA.volumes[state.currentVol].badge})
             </button>
             <button type="button" class="btn-secondary" id="hero-howto-btn" style="background:rgba(255,255,255,0.22);color:#fff;border-color:rgba(255,255,255,0.5);">
-              📖 Cómo empezar (Guía para Familias)
-            </button>
-            <button type="button" class="btn-secondary" id="hero-names-btn" style="background:rgba(255,255,255,0.16);color:#fff;border-color:rgba(255,255,255,0.4);">
-              🔤 Practicar los 20 Nombres Deletreados
+              📖 Cómo empezar (Guía para Familias + 20 Nombres)
             </button>
           </div>
         </div>
@@ -695,14 +728,13 @@
     document.getElementById("hero-howto-btn")?.addEventListener("click", () => {
       openHowToModal();
     });
-    document.getElementById("hero-names-btn")?.addEventListener("click", () => {
-      openNamesModal();
-    });
 
     container.querySelectorAll("[data-launch-vol]").forEach((btn) => {
       btn.addEventListener("click", () => {
+        if (btn.disabled) return;
         const v = btn.getAttribute("data-launch-vol");
         const m = btn.getAttribute("data-launch-mod");
+        if (!isModuleUnlocked(v, m)) return;
         state.currentVol = v;
         saveState();
         navigateTo(m, "part1");
@@ -714,6 +746,9 @@
     const isSelected = state.currentVol === volKey;
     const spState = state.volumes[volKey].speaking;
     const stepsDone = Object.values(spState.checkedSteps || {}).filter(Boolean).length;
+    const rwUnlocked = isModuleUnlocked(volKey, "rw");
+    const spUnlocked = isModuleUnlocked(volKey, "speaking");
+    const resUnlocked = isModuleUnlocked(volKey, "results");
 
     return `
       <article class="volume-card ${isSelected ? "selected" : ""}">
@@ -726,34 +761,50 @@
         <div class="module-launch-list">
           <button type="button" class="module-launch-btn" data-launch-vol="${volKey}" data-launch-mod="listening">
             <div class="module-launch-info">
-              <strong>🎧 Listening (20 min · 4 partes)</strong>
+              <strong>1. 🎧 Listening (20 min · 4 partes)</strong>
               <span>Unir con líneas, deletreo/números, A/B/C y colorear (${volKey === "vol1" ? "globos" : "ananás"})</span>
             </div>
             <span class="status-pill">${lEval.answeredCount}/20 resp.</span>
           </button>
 
-          <button type="button" class="module-launch-btn" data-launch-vol="${volKey}" data-launch-mod="rw">
+          <button type="button"
+                  class="module-launch-btn ${rwUnlocked ? "" : "locked"}"
+                  data-launch-vol="${volKey}"
+                  data-launch-mod="rw"
+                  ${rwUnlocked ? "" : "disabled"}
+                  title="${rwUnlocked ? "Ir a 2. Reading & Writing" : "Completá 1. Listening primero"}">
             <div class="module-launch-info">
-              <strong>✏️ Reading &amp; Writing (20 min · 5 partes)</strong>
-              <span>✔/✘, Yes/No, Anagramas, Texto con dibujos e Historieta</span>
+              <strong>${rwUnlocked ? "" : "🔒 "}2. ✏️ Reading &amp; Writing (20 min · 5 partes)</strong>
+              <span>${rwUnlocked ? "✔/✘, Yes/No, Anagramas, Texto con dibujos e Historieta" : "Se desbloquea al finalizar 1. Listening"}</span>
             </div>
-            <span class="status-pill">${rwEval.answeredCount}/25 resp.</span>
+            <span class="status-pill">${rwUnlocked ? `${rwEval.answeredCount}/25 resp.` : "Bloqueado"}</span>
           </button>
 
-          <button type="button" class="module-launch-btn" data-launch-vol="${volKey}" data-launch-mod="speaking">
+          <button type="button"
+                  class="module-launch-btn ${spUnlocked ? "" : "locked"}"
+                  data-launch-vol="${volKey}"
+                  data-launch-mod="speaking"
+                  ${spUnlocked ? "" : "disabled"}
+                  title="${spUnlocked ? "Ir a 3. Speaking" : "Completá 2. Reading & Writing primero"}">
             <div class="module-launch-info">
-              <strong>🗣️ Speaking en Familia (3–5 min · 4 partes)</strong>
-              <span>Lámina "${volKey === "vol1" ? "Kitchen" : "At the Beach & Boat"}" + 8 tarjetas recortadas + Guion</span>
+              <strong>${spUnlocked ? "" : "🔒 "}3. 🗣️ Speaking en Familia (3–5 min · 4 partes)</strong>
+              <span>${spUnlocked ? `Lámina "${volKey === "vol1" ? "Kitchen" : "At the Beach & Boat"}" + 8 tarjetas + Guion` : "Se desbloquea al finalizar 2. Reading & Writing"}</span>
             </div>
-            <span class="status-pill">${stepsDone}/5 pasos</span>
+            <span class="status-pill">${spUnlocked ? `${stepsDone}/5 pasos` : "Bloqueado"}</span>
           </button>
 
-          <button type="button" class="module-launch-btn" data-launch-vol="${volKey}" data-launch-mod="results" style="background:#fefce8;border-color:#fde047;">
+          <button type="button"
+                  class="module-launch-btn ${resUnlocked ? "" : "locked"}"
+                  data-launch-vol="${volKey}"
+                  data-launch-mod="results"
+                  ${resUnlocked ? "" : "disabled"}
+                  style="${resUnlocked ? "background:#fefce8;border-color:#fde047;" : ""}"
+                  title="${resUnlocked ? "Ver Resultados y Escudos" : "Completá Listening, Reading & Writing y Speaking primero"}">
             <div class="module-launch-info">
-              <strong>🏆 Ver Corrección y Escudos de Cambridge</strong>
-              <span>Revisar respuestas con la Marking Key oficial</span>
+              <strong>${resUnlocked ? "" : "🔒 "}🏆 Resultados y Escudos de Cambridge</strong>
+              <span>${resUnlocked ? "Revisar respuestas con la Marking Key oficial" : "Se desbloquea al finalizar las 3 etapas"}</span>
             </div>
-            <span class="status-pill" style="background:#fef08a;border-color:#eab308;">Ver Escudos →</span>
+            <span class="status-pill" style="${resUnlocked ? "background:#fef08a;border-color:#eab308;" : ""}">${resUnlocked ? "Ver Resultados →" : "Bloqueado"}</span>
           </button>
         </div>
       </article>
@@ -803,7 +854,7 @@
         </div>
         <div style="display:flex;gap:0.5rem;align-items:center;">
           <button type="button" class="btn-secondary" id="btn-grade-listening">
-            ✅ Corregir Listening y ver Escudos
+            ✅ Finalizar 1. Listening y pasar a 2. Reading &amp; Writing →
           </button>
         </div>
       </div>
@@ -865,7 +916,7 @@
             ${
               partKey !== "part4"
                 ? `<button type="button" class="btn-primary" id="btn-next-part">Siguiente Parte →</button>`
-                : `<button type="button" class="btn-primary" id="btn-finish-listening">🏆 Finalizar Listening y ver Escudos</button>`
+                : `<button type="button" class="btn-primary" id="btn-finish-listening">✅ Finalizar 1. Listening y pasar a 2. Reading &amp; Writing →</button>`
             }
           </div>
         </footer>
@@ -903,7 +954,7 @@
     document.getElementById("btn-grade-listening")?.addEventListener("click", () => {
       getVolState().checkedAnswers.listening = true;
       saveState();
-      navigateTo("results");
+      navigateTo("rw", "part1");
     });
 
     const order = ["part1", "part2", "part3", "part4"];
@@ -917,7 +968,7 @@
     document.getElementById("btn-finish-listening")?.addEventListener("click", () => {
       getVolState().checkedAnswers.listening = true;
       saveState();
-      navigateTo("results");
+      navigateTo("rw", "part1");
     });
 
     // Renderizar cuerpo específico de la parte
@@ -1705,7 +1756,7 @@
         </div>
         <div>
           <button type="button" class="btn-secondary" id="btn-grade-rw">
-            ✅ Corregir Reading &amp; Writing
+            ✅ Finalizar 2. Reading &amp; Writing y pasar a 3. Speaking →
           </button>
         </div>
       </div>
@@ -1737,7 +1788,7 @@
             ${
               partKey !== "part5"
                 ? `<button type="button" class="btn-primary" id="btn-rw-next">Siguiente Parte →</button>`
-                : `<button type="button" class="btn-primary" id="btn-rw-finish">🏆 Finalizar Reading &amp; Writing y ver Escudos</button>`
+                : `<button type="button" class="btn-primary" id="btn-rw-finish">✅ Finalizar 2. Reading &amp; Writing y pasar a 3. Speaking →</button>`
             }
           </div>
         </footer>
@@ -1762,12 +1813,12 @@
     document.getElementById("btn-rw-finish")?.addEventListener("click", () => {
       getVolState().checkedAnswers.rw = true;
       saveState();
-      navigateTo("results");
+      navigateTo("speaking");
     });
     document.getElementById("btn-grade-rw")?.addEventListener("click", () => {
       getVolState().checkedAnswers.rw = true;
       saveState();
-      navigateTo("results");
+      navigateTo("speaking");
     });
 
     const bodyEl = document.getElementById("rw-part-body");
@@ -2381,9 +2432,12 @@
                 <strong>${studentNameHTML}:</strong> Hacé clic en la lámina para señalar con el dedo (👆) cuando te pregunten <em>"Where's the...?"</em>, o arrastrá las <strong>8 tarjetitas</strong> sobre la escena cuando te digan <em>"Put the ... on/under/next to/between/in..."</em>.
               </p>
             </div>
-            <div style="display:flex;gap:0.5rem;">
+            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
               <button type="button" class="btn-secondary" id="btn-reset-speaking-cards">
                 🔄 Devolver todas las tarjetas a la bandeja
+              </button>
+              <button type="button" class="btn-primary" id="btn-finish-speaking-top">
+                🏆 Finalizar 3. Speaking y ver Resultados →
               </button>
             </div>
           </div>
@@ -2521,7 +2575,7 @@
                     )
                     .join("")}
                   <button type="button" class="btn-primary" id="btn-sp-to-results">
-                    🏆 Ver Resumen de 15 Escudos
+                    🏆 Finalizar 3. Speaking y ver Resultados →
                   </button>
                 </div>
               </div>
@@ -2667,9 +2721,14 @@
       });
     });
 
-    document.getElementById("btn-sp-to-results")?.addEventListener("click", () => {
+    const finishSpeakingAndGoToResults = () => {
+      getVolState().checkedAnswers.speaking = true;
+      saveState();
       navigateTo("results");
-    });
+    };
+
+    document.getElementById("btn-finish-speaking-top")?.addEventListener("click", finishSpeakingAndGoToResults);
+    document.getElementById("btn-sp-to-results")?.addEventListener("click", finishSpeakingAndGoToResults);
   }
 
   // --------------------------------------------------------------------------
@@ -2782,7 +2841,7 @@
     document.getElementById("btn-reset-volume")?.addEventListener("click", () => {
       state.volumes[state.currentVol] = createEmptyVolumeState();
       saveState();
-      renderResultsView(container);
+      navigateTo("home");
     });
   }
 
@@ -2948,11 +3007,10 @@
     updateTimerUI();
     renderMain();
 
-    // Siempre preguntar el nombre al cargar index.html
+    // Siempre preguntar el nombre al cargar index.html (única instancia para ingresar el nombre)
     openWelcomeNameModal();
 
     document.getElementById("welcome-name-form")?.addEventListener("submit", handleWelcomeNameSubmit);
-    document.getElementById("btn-change-name")?.addEventListener("click", openWelcomeNameModal);
 
     // Manual de Procedimientos ("Cómo empezar") para Familias
     document.getElementById("btn-how-to-modal")?.addEventListener("click", openHowToModal);
@@ -3000,8 +3058,11 @@
       renderZiplocToolbar();
     });
 
-    // Modal de 20 nombres oficiales
-    document.getElementById("btn-names-modal")?.addEventListener("click", openNamesModal);
+    // Modal de 20 nombres oficiales (ubicado al pie de "Cómo empezar")
+    document.getElementById("btn-names-modal")?.addEventListener("click", () => {
+      closeHowToModal();
+      openNamesModal();
+    });
     document.getElementById("btn-close-names-modal")?.addEventListener("click", closeNamesModal);
     document.getElementById("names-modal")?.addEventListener("click", (e) => {
       if (e.target.id === "names-modal") closeNamesModal();

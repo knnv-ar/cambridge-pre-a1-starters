@@ -21,8 +21,8 @@
         </div>
       </button>
 
-      <button id="btn-change-name" class="util-btn" title="Cambiar nombre del alumno o alumna" style="padding:0.3rem 0.6rem;font-size:0.78rem;">
-        ✏️ <span>Cambiar nombre</span>
+      <button id="btn-how-to-modal" class="util-btn how-to-btn" title="Manual para familias: cómo funcionan los dos exámenes y cómo acompañar">
+        📖 <span>Cómo empezar</span>
       </button>
 
       <!-- Selector rápido de Volumen -->
@@ -32,13 +32,20 @@
       </div>
     </div>
 
-    <!-- Selector central de Módulo (Listening / R&W / Speaking / Resultados) -->
+    <!-- Selector central de Módulo (1. Listening -> 2. R&W -> 3. Speaking -> Resultados) -->
     <nav id="module-nav" class="module-nav" aria-label="Módulos del examen">
-      <button class="mod-tab" data-mod="home">🏠 Inicio</button>
-      <button class="mod-tab" data-mod="listening">🎧 Listening <span class="mod-badge" id="badge-listening">0/20</span></button>
-      <button class="mod-tab" data-mod="rw">✏️ Reading &amp; Writing <span class="mod-badge" id="badge-rw">0/25</span></button>
-      <button class="mod-tab" data-mod="speaking">🗣️ Speaking <span class="mod-badge" id="badge-speaking">En familia</span></button>
-      <button class="mod-tab mod-tab-results" data-mod="results">🏆 Escudos</button>
+      <button class="mod-tab" data-mod="listening" id="nav-tab-listening">
+        <span class="mod-lock-icon"></span>1. 🎧 Listening <span class="mod-badge" id="badge-listening">0/20</span>
+      </button>
+      <button class="mod-tab locked" data-mod="rw" id="nav-tab-rw" disabled>
+        <span class="mod-lock-icon">🔒 </span>2. ✏️ Reading &amp; Writing <span class="mod-badge" id="badge-rw">0/25</span>
+      </button>
+      <button class="mod-tab locked" data-mod="speaking" id="nav-tab-speaking" disabled>
+        <span class="mod-lock-icon">🔒 </span>3. 🗣️ Speaking <span class="mod-badge" id="badge-speaking">En familia</span>
+      </button>
+      <button class="mod-tab mod-tab-results locked" data-mod="results" id="nav-tab-results" disabled>
+        <span class="mod-lock-icon">🔒 </span>🏆 Resultados
+      </button>
     </nav>
 
     <div class="topbar-right">
@@ -49,14 +56,6 @@
         <button id="btn-timer-toggle" class="timer-btn" title="Pausar / Reanudar">⏸️</button>
         <button id="btn-timer-reset" class="timer-btn" title="Reiniciar 20 min">🔄</button>
       </div>
-
-      <button id="btn-how-to-modal" class="util-btn how-to-btn" title="Manual para familias: cómo funcionan los dos exámenes y cómo acompañar">
-        📖 <span>Cómo empezar</span>
-      </button>
-
-      <button id="btn-names-modal" class="util-btn" title="Practicar los 20 nombres oficiales deletreados">
-        🔤 <span>20 Nombres</span>
-      </button>
     </div>
   </header>
 
@@ -142,7 +141,10 @@
 
         <!-- Paso 2: Las 3 partes de cada examen -->
         <div class="howto-section-card">
-          <h3>2️⃣ ¿Cómo funciona cada una de las 3 partes del examen?</h3>
+          <h3>2️⃣ Recorrido paso a paso en orden: 1. Listening → 2. Reading &amp; Writing → 3. Speaking → 🏆 Resultados</h3>
+          <p>
+            Igual que en el examen real del sábado, las etapas se van desbloqueando en orden a medida que el niño o la niña las completa:
+          </p>
 
           <div class="howto-module-grid">
             <!-- Listening -->
@@ -184,19 +186,22 @@
 
         <!-- Paso 3: Ziploc y Escudos -->
         <div class="howto-section-card">
-          <h3>3️⃣ El Estuche Ziploc Virtual y los 15 Escudos de Cambridge</h3>
+          <h3>3️⃣ El Estuche Ziploc Virtual y los Resultados con Escudos de Cambridge</h3>
           <ul class="tips-list">
             <li><strong>🧰 Barra inferior Ziploc:</strong> Siempre tienen a mano el lápiz negro (<code>PENCIL</code>), la goma (<code>ERASER</code>) y los <strong>9 colores oficiales</strong> que pide la citación del colegio (<code>RED</code>, <code>BLUE</code>, <code>YELLOW</code>, <code>GREEN</code>, <code>ORANGE</code>, <code>PURPLE/VIOLET</code>, <code>PINK</code>, <code>BROWN</code>, <code>GREY</code>). Para borrar una línea, un color o un casillero, basta con elegir la goma (<code>ERASER</code>) y tocarlo.</li>
-            <li><strong>🏆 Corrección y Escudos (Sin aplazos):</strong> En Cambridge Pre A1 Starters ningún niño o niña desaprueba. Al tocar <strong>🏆 Escudos</strong> en la barra superior (o al terminar cada módulo), el sistema corrige automáticamente todas las respuestas contra la clave oficial (<em>Marking Key</em>), entrega de <strong>1 a 5 Escudos por habilidad</strong> (máximo 15 escudos) y explica en castellano cada respuesta.</li>
+            <li><strong>🏆 Resultados y Escudos (Sin aplazos):</strong> En Cambridge Pre A1 Starters ningún niño o niña desaprueba. Una vez finalizadas las 3 etapas (<code>1. Listening</code>, <code>2. Reading &amp; Writing</code> y <code>3. Speaking</code>), se habilita el botón <strong>🏆 Resultados</strong>, que corrige automáticamente contra la clave oficial (<em>Marking Key</em>), entrega de <strong>1 a 5 Escudos por habilidad</strong> (máximo 15 escudos) y explica en castellano cada respuesta.</li>
           </ul>
         </div>
 
-        <div style="display:flex;justify-content:center;gap:0.85rem;flex-wrap:wrap;margin-top:1.25rem;">
+        <div style="display:flex;justify-content:center;align-items:center;gap:0.85rem;flex-wrap:wrap;margin-top:1.25rem;padding-top:1rem;border-top:1.5px dashed #cbd5e1;">
           <button type="button" class="btn-primary" id="btn-howto-start-vol1">
             📘 Ir a practicar Volumen 1
           </button>
           <button type="button" class="btn-secondary" id="btn-howto-start-vol2" style="border-color:#4c1d95;color:#4c1d95;">
             📙 Ir a practicar Volumen 2
+          </button>
+          <button type="button" class="util-btn" id="btn-names-modal" title="Practicar los 20 nombres oficiales deletreados" style="padding:0.55rem 1.05rem;font-size:0.92rem;">
+            🔤 <span>Practicar los 20 Nombres Oficiales</span>
           </button>
         </div>
       </div>
