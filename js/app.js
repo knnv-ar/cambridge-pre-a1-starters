@@ -1256,8 +1256,8 @@
           const [x1, y1, x2, y2] = t.box;
           const tl = pctToPx(x1, y1);
           const br = pctToPx(x2, y2);
-          ctx.strokeStyle = "rgba(37, 99, 235, 0.55)";
-          ctx.fillStyle = "rgba(37, 99, 235, 0.08)";
+          ctx.strokeStyle = "rgba(17, 24, 39, 0.5)";
+          ctx.fillStyle = "rgba(17, 24, 39, 0.06)";
           ctx.lineWidth = 2;
           ctx.setLineDash([4, 4]);
           ctx.strokeRect(tl.x, tl.y, br.x - tl.x, br.y - tl.y);
@@ -1272,18 +1272,18 @@
         const tl = pctToPx(x1, y1);
         const br = pctToPx(x2, y2);
         ctx.save();
-        ctx.strokeStyle = "#2563eb";
+        ctx.strokeStyle = "#111827";
         ctx.lineWidth = 3;
         ctx.strokeRect(tl.x, tl.y, br.x - tl.x, br.y - tl.y);
         ctx.restore();
       }
 
-      // 2. Línea de cada unión hecha por Lichu
+      // 2. Línea de cada unión hecha por el alumno/a (en color negro grafito como el lápiz PENCIL)
       Object.entries(lState.p1Lines || {}).forEach(([nameId, targetId]) => {
         const nObj = partData.names.find((n) => n.id === nameId);
         const tObj = partData.targets.find((t) => t.id === targetId);
         if (nObj && tObj) {
-          drawArrowLine(ctx, nObj, tObj, "#1d4ed8", 3.8, false);
+          drawArrowLine(ctx, nObj, tObj, "#111827", 3.8, false);
         }
       });
 
@@ -1576,7 +1576,7 @@
         </div>
 
         <div id="p4-color-alert" class="lichu-tip-banner" style="background:#fefce8;border-left-color:#eab308;color:#854d0e;margin-bottom:0.2rem;">
-          🎨 <span>Seleccioná uno de los <strong>9 lápices de colores</strong> en tu Ziploc de abajo y tocá o pintá sobre cada <strong>${partData.objectNoun}</strong>.</span>
+          🎨 <span>Seleccioná uno de los <strong>9 lápices de colores</strong> en tu Ziploc de la izquierda y tocá o pintá sobre cada <strong>${partData.objectNoun}</strong>.</span>
         </div>
 
         <div class="canvas-container" id="p4-canvas-container">
@@ -1753,7 +1753,7 @@
           alertBox.style.background = "#fee2e2";
           alertBox.style.borderLeftColor = "#ef4444";
           alertBox.style.color = "#991b1b";
-          alertBox.innerHTML = `⚠️ <span>Tenés seleccionado el <strong>lápiz negro (PENCIL)</strong>. ¡Hacé clic en uno de los <strong>9 lápices de colores</strong> en tu Ziploc de abajo para colorear!</span>`;
+          alertBox.innerHTML = `⚠️ <span>Tenés seleccionado el <strong>lápiz negro (PENCIL)</strong>. ¡Hacé clic en uno de los <strong>9 lápices de colores</strong> en tu Ziploc de la izquierda para colorear!</span>`;
         }
         return;
       }
