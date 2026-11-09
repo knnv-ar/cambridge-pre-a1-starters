@@ -1,12 +1,11 @@
 // ============================================================================
 // CAMBRIDGE ENGLISH: PRE A1 STARTERS — DATOS OFICIALES VOLUMEN 1 Y VOLUMEN 2
-// Diseñado para Lisandro ("Lichu") — Examen: Sábado 14 de noviembre de 2026
+// Simulador Interactivo 3.º Grado — Examen: Sábado 14 de noviembre de 2026
 // ============================================================================
 
 window.STARTERS_DATA = {
   student: {
-    name: "Lisandro",
-    nickname: "Lichu",
+    defaultName: "Alumno/a",
     grade: "3.º Grado (CABA)",
     examDate: "2026-11-14T09:00:00-03:00",
     examDateFormatted: "Sábado 14 de noviembre de 2026"
@@ -619,7 +618,7 @@ M: Yes. Thank you!`
             part: "Intro & Part 1a",
             whatExaminerDoes: "Greets the candidate, checks name, and shows the Kitchen scene picture.",
             whatExaminerSays: "Hello. What’s your name?\nLook at this picture. This is a kitchen. The family are having breakfast.\nHere’s the man.\n• Where’s the door?\n• Where are the bananas?\n• Where’s the blue toy box?",
-            minResponse: "Lisandro / Lichu.\n(Points to the white door, the bananas on the table, and the blue box with toys).",
+            minResponse: "{studentName}.\n(Points to the white door, the bananas on the table, and the blue box with toys).",
             backupQuestions: "• Is this the door? (pointing)\n• Are these the bananas?\n• Is this the toy box?"
           },
           {
@@ -649,8 +648,8 @@ M: Yes. Thank you!`
           {
             id: "v1_sp_p4",
             part: "Part 4 (Personal Questions)",
-            whatExaminerDoes: "Puts away all pictures and asks 3 personal questions directly to Lichu.",
-            whatExaminerSays: "Now, Lisandro:\n• How old are you?\n• Which sport do you like?\n• Who do you play with at school?\nOK, thank you, Lisandro. Goodbye!",
+            whatExaminerDoes: "Puts away all pictures and asks 3 personal questions directly to {studentName}.",
+            whatExaminerSays: "Now, {studentName}:\n• How old are you?\n• Which sport do you like?\n• Who do you play with at school?\nOK, thank you, {studentName}. Goodbye!",
             minResponse: "• Eight / Nine.\n• Football / tennis / swimming.\n• My friends (e.g. Ben / Tom).\n• Goodbye!",
             backupQuestions: "• Are you eight or nine?\n• Do you like football?\n• Do you play with your friends?"
           }
@@ -1203,7 +1202,7 @@ M: Very good. Thanks!`
             part: "Intro & Part 1a",
             whatExaminerDoes: "Greets the candidate, checks name, and shows the Beach & Boat scene picture.",
             whatExaminerSays: "Hello. What’s your name?\nLook at this picture. It’s a sunny day at the beach. Here’s the boat.\n• Where’s the sun?\n• Where are the dogs?\n• Where’s the yellow hat?",
-            minResponse: "Lisandro / Lichu.\n(Points to the sun in the sky, the two dogs on the boat, and the yellow hat in the water).",
+            minResponse: "{studentName}.\n(Points to the sun in the sky, the two dogs on the boat, and the yellow hat in the water).",
             backupQuestions: "• Is this the sun? (pointing)\n• Are these the dogs?\n• Is this the hat?"
           },
           {
@@ -1233,8 +1232,8 @@ M: Very good. Thanks!`
           {
             id: "v2_sp_p4",
             part: "Part 4 (Personal Questions)",
-            whatExaminerDoes: "Puts away all pictures and asks 3 personal questions directly to Lichu.",
-            whatExaminerSays: "Now, Lisandro:\n• What’s in your classroom?\n• What’s your teacher’s name?\n• What do you do after school?\nOK, thank you, Lisandro. Goodbye!",
+            whatExaminerDoes: "Puts away all pictures and asks 3 personal questions directly to {studentName}.",
+            whatExaminerSays: "Now, {studentName}:\n• What’s in your classroom?\n• What’s your teacher’s name?\n• What do you do after school?\nOK, thank you, {studentName}. Goodbye!",
             minResponse: "• Desks / chairs / board / books.\n• (Teacher’s name).\n• Play football / watch TV / play games.\n• Goodbye!",
             backupQuestions: "• Are there desks in your classroom?\n• Is your teacher a man or a woman?\n• Do you play games after school?"
           }

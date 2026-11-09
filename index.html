@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cambridge Pre A1 Starters — Práctica Interactiva de Lichu (2026)</title>
+  <title>Cambridge Pre A1 Starters — Simulador Interactivo (2026)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,600&family=Patrick+Hand&display=swap" rel="stylesheet">
@@ -17,8 +17,12 @@
         <span class="brand-shield">🛡️</span>
         <div class="brand-text">
           <span class="brand-tag">CAMBRIDGE ENGLISH</span>
-          <span class="brand-title">Pre A1 Starters · <strong>Lichu</strong></span>
+          <span class="brand-title">Pre A1 Starters · <strong id="header-student-name">Alumno/a</strong></span>
         </div>
+      </button>
+
+      <button id="btn-change-name" class="util-btn" title="Cambiar nombre del alumno o alumna" style="padding:0.3rem 0.6rem;font-size:0.78rem;">
+        ✏️ <span>Cambiar nombre</span>
       </button>
 
       <!-- Selector rápido de Volumen -->
@@ -33,7 +37,7 @@
       <button class="mod-tab" data-mod="home">🏠 Inicio</button>
       <button class="mod-tab" data-mod="listening">🎧 Listening <span class="mod-badge" id="badge-listening">0/20</span></button>
       <button class="mod-tab" data-mod="rw">✏️ Reading &amp; Writing <span class="mod-badge" id="badge-rw">0/25</span></button>
-      <button class="mod-tab" data-mod="speaking">🗣️ Speaking <span class="mod-badge" id="badge-speaking">Papá + Lichu</span></button>
+      <button class="mod-tab" data-mod="speaking">🗣️ Speaking <span class="mod-badge" id="badge-speaking">En familia</span></button>
       <button class="mod-tab mod-tab-results" data-mod="results">🏆 Escudos</button>
     </nav>
 
@@ -45,6 +49,10 @@
         <button id="btn-timer-toggle" class="timer-btn" title="Pausar / Reanudar">⏸️</button>
         <button id="btn-timer-reset" class="timer-btn" title="Reiniciar 20 min">🔄</button>
       </div>
+
+      <button id="btn-how-to-modal" class="util-btn how-to-btn" title="Manual para familias: cómo funcionan los dos exámenes y cómo acompañar">
+        📖 <span>Cómo empezar</span>
+      </button>
 
       <button id="btn-names-modal" class="util-btn" title="Practicar los 20 nombres oficiales deletreados">
         🔤 <span>20 Nombres</span>
@@ -62,7 +70,7 @@
     <div class="ziploc-seal">
       <div class="ziploc-zip-line"></div>
       <span class="ziploc-slider"></span>
-      <span class="ziploc-title">🧰 ZIPLOC DE LICHU — Útiles Oficiales:</span>
+      <span id="ziploc-title-text" class="ziploc-title">🧰 TU ZIPLOC — Útiles Oficiales:</span>
       <span id="active-tool-indicator" class="active-tool-indicator">Útil activo: ✏️ PENCIL (Lápiz negro)</span>
       <button id="btn-toggle-ziploc" class="ziploc-collapse-btn" title="Minimizar/Expandir estuche">▼</button>
     </div>
@@ -70,6 +78,130 @@
       <!-- Lápiz negro, goma y los 9 lápices de colores se inyectan dinámicamente -->
     </div>
   </aside>
+
+  <!-- MODAL POPUP DE BIENVENIDA PARA PREGUNTAR EL NOMBRE AL CARGAR INDEX.HTML -->
+  <div id="welcome-name-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="welcome-modal-title">
+    <div class="modal-card" style="max-width: 500px; text-align: center;">
+      <div class="modal-header" style="justify-content: center; background: linear-gradient(135deg, #1e3a8a 0%, #6b4e8a 100%);">
+        <h2 id="welcome-modal-title" style="font-family: var(--font-heading); font-size: 1.45rem;">
+          🛡️ Welcome to Pre A1 Starters! 🇬🇧
+        </h2>
+      </div>
+      <form id="welcome-name-form" class="modal-body" style="padding: 1.75rem 1.5rem;">
+        <div style="font-size: 2.8rem; margin-bottom: 0.4rem;">👋✨</div>
+        <h3 style="font-family: var(--font-heading); font-size: 1.35rem; color: #0f172a; margin-bottom: 0.35rem;">
+          What’s your name? · ¿Cómo te llamás?
+        </h3>
+        <p style="font-size: 0.95rem; color: #475569; margin-bottom: 1.15rem;">
+          Escribí tu nombre para personalizar tu cuadernillo, tu estuche Ziploc y tu certificado de escudos de Cambridge:
+        </p>
+        <div style="margin-bottom: 1.25rem;">
+          <input
+            id="input-student-name"
+            type="text"
+            class="exam-input"
+            style="width: 100%; max-width: 320px; font-size: 1.65rem; padding: 0.4rem 0.9rem; border-radius: 12px; border: 2.5px solid #3b82f6; background: #eff6ff;"
+            placeholder="Tu nombre..."
+            maxlength="32"
+            autocomplete="off"
+            spellcheck="false"
+            required
+          />
+        </div>
+        <button type="submit" class="btn-primary" style="font-size: 1.08rem; padding: 0.75rem 1.8rem; border-radius: 999px; box-shadow: 0 6px 16px rgba(29, 78, 216, 0.3);">
+          🚀 ¡Empezar a practicar!
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL MANUAL DE PROCEDIMIENTOS PARA MADRES, PADRES Y FAMILIAS ("CÓMO EMPEZAR") -->
+  <div id="how-to-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="how-to-modal-title">
+    <div class="modal-card" style="max-width: 860px;">
+      <div class="modal-header" style="background: linear-gradient(135deg, #1e3a8a 0%, #4c1d95 100%);">
+        <h2 id="how-to-modal-title">📖 Cómo empezar — Guía rápida para Madres, Padres y Familias</h2>
+        <button id="btn-close-how-to-modal" class="modal-close-btn" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="howto-intro-banner">
+          <strong>👋 ¡Bienvenidos!</strong> Esta plataforma gratuita reproduce fielmente la experiencia en papel del examen internacional <strong>Cambridge English: Pre A1 Starters</strong>. Aquí encontrarán <strong>dos exámenes oficiales completos de muestra</strong> (<strong>📘 Volumen 1</strong> y <strong>📙 Volumen 2</strong>) para practicar en casa antes del sábado.
+        </div>
+
+        <!-- Paso 1: Los 2 Volúmenes -->
+        <div class="howto-section-card">
+          <h3>1️⃣ Hay 2 Exámenes Oficiales Completos disponibles (Volumen 1 y Volumen 2)</h3>
+          <p>
+            En la barra superior (o en las dos tarjetas grandes de la pantalla de <strong>🏠 Inicio</strong>) van a ver los botones <strong>📘 Volumen 1</strong> y <strong>📙 Volumen 2</strong>.
+          </p>
+          <ul class="tips-list">
+            <li>Cada volumen es un <strong>examen completo e independiente</strong> con sus propios dibujos, audios y lecturas.</li>
+            <li>Pueden empezar haciendo el <strong>📘 Volumen 1</strong> completo hoy y dejar el <strong>📙 Volumen 2</strong> para otro día de repaso.</li>
+            <li>Las respuestas quedan guardadas automáticamente en el navegador mientras practican, y pueden cambiar de volumen cuando quieran sin perder lo que hicieron.</li>
+          </ul>
+        </div>
+
+        <!-- Paso 2: Las 3 partes de cada examen -->
+        <div class="howto-section-card">
+          <h3>2️⃣ ¿Cómo funciona cada una de las 3 partes del examen?</h3>
+
+          <div class="howto-module-grid">
+            <!-- Listening -->
+            <div class="howto-module-box">
+              <div class="howto-mod-header">🎧 1. Listening (20 minutos · 4 partes · 20 preguntas)</div>
+              <p>Arriba de cada hoja verán un <strong>reproductor de audio MP3</strong> con la grabación oficial de esa parte (y botones <code>⏪ -5s</code>, <code>⏩ +5s</code>, velocidad <code>0.9x</code> y <strong>📜 Ver Tapescript</strong> por si el adulto quiere leer el diálogo escrito).</p>
+              <ul class="tips-list">
+                <li><strong>Part 1 (Unir con líneas):</strong> Con el lápiz negro (<code>PENCIL</code>), arrastrar una línea desde el nombre hasta la persona correcta en el dibujo (sobra 1 nombre).</li>
+                <li><strong>Part 2 (Nombres y números):</strong> Escuchar el deletreo letra por letra o el número y escribirlo. Los números se pueden escribir con cifras (ej. <code>15</code>) o con palabras (<code>fifteen</code>).</li>
+                <li><strong>Part 3 (Tilde A, B o C):</strong> Escuchar y hacer clic en el casillero <code>A</code>, <code>B</code> o <code>C</code> para poner un tilde (<code>✔</code>).</li>
+                <li><strong>Part 4 (Colorear):</strong> Seleccionar uno de los <strong>9 lápices de colores</strong> en el estuche Ziploc de abajo y pintar el objeto que indica el audio (globos en Vol. 1, ananás en Vol. 2).</li>
+              </ul>
+            </div>
+
+            <!-- Reading & Writing -->
+            <div class="howto-module-box">
+              <div class="howto-mod-header">✏️ 2. Reading &amp; Writing (20 minutos · 5 partes · 25 preguntas)</div>
+              <p>La niña o el niño puede resolverlo a su ritmo, prestando especial atención a la <strong>ortografía exacta en inglés</strong> (<em>spelling</em>):</p>
+              <ul class="tips-list">
+                <li><strong>Part 1 (✔ o ✘):</strong> Mirar cada imagen y su frase (<em>"This is a..."</em>). Poner tilde (<code>✔</code>) si coincide o cruz (<code>✘</code>) si no coincide.</li>
+                <li><strong>Part 2 (Yes / No):</strong> Mirar la lámina grande y escribir <code>yes</code> o <code>no</code> al lado de cada oración.</li>
+                <li><strong>Part 3 (Anagramas):</strong> Ordenar las letras desordenadas para escribir la palabra en los guiones (<code>_ _ _ _ _</code>). Las fichitas de letras se van tachando solas al usarlas.</li>
+                <li><strong>Part 4 (Texto con dibujos):</strong> Completar los 5 espacios vacíos del texto tocando o arrastrando las tarjetas con dibujo de la caja inferior (sobran 2 palabras).</li>
+                <li><strong>Part 5 (Historieta de 3 cuadros):</strong> Responder cada pregunta con <strong>una sola palabra</strong> o un número (fijándose qué palabras ya vienen impresas antes de la línea, como <code>a</code>, <code>the</code> o <code>in the</code>).</li>
+              </ul>
+            </div>
+
+            <!-- Speaking -->
+            <div class="howto-module-box howto-module-speaking">
+              <div class="howto-mod-header">🗣️ 3. Speaking (3 a 5 minutos · 4 partes · ¡Para hacer juntos en familia!)</div>
+              <p>En el examen real el niño/a conversa unos minutos con un examinador usando una lámina grande y 8 tarjetitas. <strong>Cualquier madre, padre o familiar puede acompañarlo/a usando el panel incluido en pantalla:</strong></p>
+              <ul class="tips-list">
+                <li><strong>Arriba (Lámina + 8 Tarjetitas para el niño/a):</strong> Cuando le pregunten <em>"Where's the...?"</em>, el niño/a toca ese objeto en la lámina y aparece un dedito (<code>👆</code>). Cuando le pidan <em>"Put the ... on/under/next to..."</em>, arrastra la tarjetita recortada y la suelta sobre ese lugar de la escena. Además, cada tarjetita tiene un botón <code>🔊</code> para escuchar cómo se pronuncia.</li>
+                <li><strong>Abajo (Guion Oficial del Examinador para Mamá / Papá):</strong> Una tabla paso a paso con <strong>exactamente qué preguntarle en inglés</strong> (<em>What the examiner says</em>), <strong>qué respuesta mínima se espera</strong> (<em>Minimum response expected</em>) y <strong>preguntas de ayuda</strong> (<em>Back-up questions</em>) por si se traba.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Paso 3: Ziploc y Escudos -->
+        <div class="howto-section-card">
+          <h3>3️⃣ El Estuche Ziploc Virtual y los 15 Escudos de Cambridge</h3>
+          <ul class="tips-list">
+            <li><strong>🧰 Barra inferior Ziploc:</strong> Siempre tienen a mano el lápiz negro (<code>PENCIL</code>), la goma (<code>ERASER</code>) y los <strong>9 colores oficiales</strong> que pide la citación del colegio (<code>RED</code>, <code>BLUE</code>, <code>YELLOW</code>, <code>GREEN</code>, <code>ORANGE</code>, <code>PURPLE/VIOLET</code>, <code>PINK</code>, <code>BROWN</code>, <code>GREY</code>). Para borrar una línea, un color o un casillero, basta con elegir la goma (<code>ERASER</code>) y tocarlo.</li>
+            <li><strong>🏆 Corrección y Escudos (Sin aplazos):</strong> En Cambridge Pre A1 Starters ningún niño o niña desaprueba. Al tocar <strong>🏆 Escudos</strong> en la barra superior (o al terminar cada módulo), el sistema corrige automáticamente todas las respuestas contra la clave oficial (<em>Marking Key</em>), entrega de <strong>1 a 5 Escudos por habilidad</strong> (máximo 15 escudos) y explica en castellano cada respuesta.</li>
+          </ul>
+        </div>
+
+        <div style="display:flex;justify-content:center;gap:0.85rem;flex-wrap:wrap;margin-top:1.25rem;">
+          <button type="button" class="btn-primary" id="btn-howto-start-vol1">
+            📘 Ir a practicar Volumen 1
+          </button>
+          <button type="button" class="btn-secondary" id="btn-howto-start-vol2" style="border-color:#4c1d95;color:#4c1d95;">
+            📙 Ir a practicar Volumen 2
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- MODAL DE REPASO DE LOS 20 NOMBRES OFICIALES Y CONSEJOS -->
   <div id="names-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="names-modal-title">

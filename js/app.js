@@ -1,6 +1,6 @@
 // ============================================================================
 // CAMBRIDGE ENGLISH: PRE A1 STARTERS — LÓGICA PRINCIPAL DE LA APLICACIÓN
-// Diseñado para Lisandro ("Lichu") — Sábado 14 de noviembre de 2026
+// Simulador Interactivo 3.º Grado — Sábado 14 de noviembre de 2026
 // 100% Estático · Sin dependencias externas · Compatible Offline & GitHub Pages
 // ============================================================================
 
@@ -8,7 +8,7 @@
   "use strict";
 
   const DATA = window.STARTERS_DATA;
-  const STORAGE_KEY = "cambridge_lichu_2026_state_v1";
+  const STORAGE_KEY = "cambridge_starters_2026_state_v1";
 
   // --------------------------------------------------------------------------
   // 1. ESTADO GLOBAL DE LA APLICACIÓN
@@ -45,6 +45,7 @@
   }
 
   const state = {
+    studentName: "",             // Nombre de la niña o niño en la sesión actual (se pregunta en cada carga)
     currentVol: "vol1",          // "vol1" | "vol2"
     currentMod: "home",          // "home" | "listening" | "rw" | "speaking" | "results"
     currentPart: {
@@ -68,6 +69,35 @@
       vol2: createEmptyVolumeState()
     }
   };
+
+  function getStudentName() {
+    return (state.studentName || "").trim() || DATA.student.defaultName || "Alumno/a";
+  }
+
+  function escapeHTML(str) {
+    return String(str || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function personalizeText(str) {
+    return String(str || "").replace(/\{studentName\}/g, escapeHTML(getStudentName()));
+  }
+
+  function updateStudentNameUI() {
+    const safeName = getStudentName();
+    const headerNameEl = document.getElementById("header-student-name");
+    if (headerNameEl) {
+      headerNameEl.textContent = safeName;
+    }
+    const ziplocTitleEl = document.getElementById("ziploc-title-text");
+    if (ziplocTitleEl) {
+      ziplocTitleEl.textContent = `🧰 ZIPLOC DE ${safeName.toUpperCase()} — Útiles Oficiales:`;
+    }
+    document.title = `Cambridge Pre A1 Starters — Práctica de ${safeName} (2026)`;
+  }
 
   // Cargar progreso guardado en localStorage
   function loadState() {
@@ -580,7 +610,7 @@
   }
 
   // --------------------------------------------------------------------------
-  // 6. VISTA DE INICIO (HOME DASHBOARD PARA LICHU)
+  // 6. VISTA DE INICIO (HOME DASHBOARD PERSONALIZADO)
   // --------------------------------------------------------------------------
   function getDaysUntilExam() {
     const now = new Date();
@@ -589,7 +619,7 @@
     const days = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
     if (days > 1) return { number: `${days} días`, label: "para el sábado 14 de noviembre" };
     if (days === 1) return { number: "¡Mañana!", label: "Sábado 14 de noviembre de 2026" };
-    if (days === 0) return { number: "¡Es HOY!", label: "¡Muchos éxitos en tu examen, Lichu!" };
+    if (days === 0) return { number: "¡Es HOY!", label: `¡Muchos éxitos en tu examen, ${escapeHTML(getStudentName())}!` };
     return { number: "14 Nov 2026", label: "Cambridge Pre A1 Starters" };
   }
 
@@ -599,18 +629,22 @@
     const vol1RW = evaluateRW("vol1");
     const vol2L = evaluateListening("vol2");
     const vol2RW = evaluateRW("vol2");
+    const studentNameHTML = escapeHTML(getStudentName());
 
     container.innerHTML = `
       <section class="hero-card">
         <div class="hero-content">
           <span class="hero-badge">🇬🇧 CAMBRIDGE ENGLISH · PRE A1 STARTERS · 3.º GRADO</span>
-          <h1 class="hero-title">¡Hola, ${DATA.student.nickname}! 🦁✨<br/>Tu simulador oficial para el sábado</h1>
+          <h1 class="hero-title">¡Hola, ${studentNameHTML}! 🦁✨<br/>Tu simulador oficial para el sábado</h1>
           <p class="hero-subtitle">
             Acá tenés los <strong>2 cuadernillos oficiales completos de Cambridge</strong> (Volumen 1 y Volumen 2) tal como los vas a ver en papel este sábado, junto con tu <strong>estuche Ziploc virtual</strong> acá abajo con el lápiz negro, la goma y los <strong>9 lápices de colores reglamentarios</strong>.
           </p>
           <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:0.9rem;">
             <button type="button" class="btn-primary" id="hero-start-btn" style="background:#fde047;color:#1e293b;">
               🚀 Empezar a practicar (${DATA.volumes[state.currentVol].badge})
+            </button>
+            <button type="button" class="btn-secondary" id="hero-howto-btn" style="background:rgba(255,255,255,0.22);color:#fff;border-color:rgba(255,255,255,0.5);">
+              📖 Cómo empezar (Guía para Familias)
             </button>
             <button type="button" class="btn-secondary" id="hero-names-btn" style="background:rgba(255,255,255,0.16);color:#fff;border-color:rgba(255,255,255,0.4);">
               🔤 Practicar los 20 Nombres Deletreados
@@ -635,7 +669,7 @@
 
       <section class="booklet-page" style="padding:1.4rem 1.75rem;">
         <h2 style="font-family:var(--font-heading);font-size:1.35rem;margin-bottom:0.75rem;color:var(--cambridge-purple-dark);">
-          🎒 Checklist de la Ziploc real de Lichu para llevar el sábado al colegio
+          🎒 Checklist de la Ziploc real de ${studentNameHTML} para llevar el sábado al colegio
         </h2>
         <p style="font-size:0.95rem;color:#334155;margin-bottom:0.85rem;">
           Tocá cada útil en tu barra inferior para probarlo. Asegurate de tener estos mismos útiles reales listos en tu bolsa transparente:
@@ -657,6 +691,9 @@
 
     document.getElementById("hero-start-btn")?.addEventListener("click", () => {
       navigateTo("listening", "part1");
+    });
+    document.getElementById("hero-howto-btn")?.addEventListener("click", () => {
+      openHowToModal();
     });
     document.getElementById("hero-names-btn")?.addEventListener("click", () => {
       openNamesModal();
@@ -705,8 +742,8 @@
 
           <button type="button" class="module-launch-btn" data-launch-vol="${volKey}" data-launch-mod="speaking">
             <div class="module-launch-info">
-              <strong>🗣️ Speaking con Papá (3–5 min · 4 partes)</strong>
-              <span>Lámina "${volKey === "vol1" ? "Kitchen" : "Toy Shop"}" + 8 tarjetas recortadas + Guion</span>
+              <strong>🗣️ Speaking en Familia (3–5 min · 4 partes)</strong>
+              <span>Lámina "${volKey === "vol1" ? "Kitchen" : "At the Beach & Boat"}" + 8 tarjetas recortadas + Guion</span>
             </div>
             <span class="status-pill">${stepsDone}/5 pasos</span>
           </button>
@@ -793,7 +830,7 @@
         state.tapescriptOpen
           ? `
         <div class="tapescript-drawer">
-          <h4>📜 Tapescript Oficial — ${getVolData().title} · Listening ${partData.title} (Para Papá / Docente)</h4>
+          <h4>📜 Tapescript Oficial — ${getVolData().title} · Listening ${partData.title} (Guía para Adulto / Docente)</h4>
           <pre class="tapescript-pre">${partData.tapescript}</pre>
         </div>
       `
@@ -811,7 +848,7 @@
 
         <div class="lichu-tip-banner">
           <span>💡</span>
-          <span><strong>Tip para Lichu:</strong> ${partData.tipEs}</span>
+          <span><strong>Tip para ${escapeHTML(getStudentName())}:</strong> ${partData.tipEs}</span>
         </div>
 
         <div id="listening-part-body"></div>
@@ -1683,7 +1720,7 @@
 
         <div class="lichu-tip-banner">
           <span>💡</span>
-          <span><strong>Tip para Lichu:</strong> ${partData.tipEs}</span>
+          <span><strong>Tip para ${escapeHTML(getStudentName())}:</strong> ${partData.tipEs}</span>
         </div>
 
         <div id="rw-part-body"></div>
@@ -2329,6 +2366,7 @@
     const spData = getVolData().speaking;
     const spState = getVolState().speaking;
     const placed = spState.placedCards || {};
+    const studentNameHTML = escapeHTML(getStudentName());
 
     container.innerHTML = `
       <div class="speaking-workspace">
@@ -2340,7 +2378,7 @@
                 🗣️ Speaking: ${spData.sceneTitle}
               </h1>
               <p style="font-size:0.94rem;color:#475569;">
-                <strong>Lichu:</strong> Hacé clic en la lámina para señalar con el dedo (👆) cuando papá pregunte <em>"Where's the...?"</em>, o arrastrá las <strong>8 tarjetitas</strong> sobre la escena cuando te diga <em>"Put the ... on/under/next to/between/in..."</em>.
+                <strong>${studentNameHTML}:</strong> Hacé clic en la lámina para señalar con el dedo (👆) cuando te pregunten <em>"Where's the...?"</em>, o arrastrá las <strong>8 tarjetitas</strong> sobre la escena cuando te digan <em>"Put the ... on/under/next to/between/in..."</em>.
               </p>
             </div>
             <div style="display:flex;gap:0.5rem;">
@@ -2405,11 +2443,11 @@
           </div>
         </section>
 
-        <!-- Panel Colapsable del Examinador (Papá / Docente) -->
+        <!-- Panel Colapsable del Examinador (Adulto / Docente acompañante) -->
         <section class="examiner-panel">
           <div class="examiner-panel-header" id="examiner-toggle-header">
             <div>
-              <strong style="font-size:1.08rem;">👨‍🏫 Guion Oficial del Examinador para Papá (Página 24 · ${getVolData().badge})</strong>
+              <strong style="font-size:1.08rem;">👨‍🏫 Guion Oficial del Examinador para Adulto / Docente (Página 24 · ${getVolData().badge})</strong>
               <span style="font-size:0.82rem;opacity:0.9;margin-left:0.5rem;">
                 Incluye <em>Summary of procedures</em>, <em>Minimum response expected</em> y <em>Back-up questions</em>
               </span>
@@ -2435,8 +2473,8 @@
                       <th style="width:50px;">Hecho</th>
                       <th style="width:130px;">Parte</th>
                       <th>What the examiner does</th>
-                      <th>What the examiner says (Papá)</th>
-                      <th>Minimum response expected from Lichu</th>
+                      <th>What the examiner says (Examinador/a)</th>
+                      <th>Minimum response expected from ${studentNameHTML}</th>
                       <th>Back-up questions (si duda)</th>
                     </tr>
                   </thead>
@@ -2453,10 +2491,10 @@
                                      ${isDone ? "checked" : ""} />
                             </td>
                             <td><strong>${st.part}</strong></td>
-                            <td>${st.whatExaminerDoes}</td>
-                            <td><strong>${st.whatExaminerSays}</strong></td>
-                            <td style="color:#15803d;font-weight:700;">${st.minResponse}</td>
-                            <td style="color:#475569;font-style:italic;">${st.backupQuestions}</td>
+                            <td>${personalizeText(st.whatExaminerDoes)}</td>
+                            <td><strong>${personalizeText(st.whatExaminerSays)}</strong></td>
+                            <td style="color:#15803d;font-weight:700;">${personalizeText(st.minResponse)}</td>
+                            <td style="color:#475569;font-style:italic;">${personalizeText(st.backupQuestions)}</td>
                           </tr>
                         `;
                       })
@@ -2467,7 +2505,7 @@
 
               <div style="margin-top:1.1rem;padding-top:0.9rem;border-top:1.5px dashed #cbd5e1;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
                 <div>
-                  <strong>🛡️ Escudos de Speaking otorgados por Papá:</strong>
+                  <strong>🛡️ Escudos de Speaking otorgados a ${studentNameHTML}:</strong>
                   <span style="font-size:0.86rem;color:#475569;margin-left:0.4rem;">(Seleccioná de 1 a 5 escudos para sumar al resultado final)</span>
                 </div>
                 <div style="display:flex;align-items:center;gap:0.45rem;">
@@ -2643,14 +2681,15 @@
     const spState = getVolState().speaking;
     const spShields = spState.shieldsAwarded || 5;
     const totalShields = lEval.shields + rwEval.shields + spShields;
+    const studentNameHTML = escapeHTML(getStudentName());
 
-    let encouragement = "¡Excelente trabajo, Lichu! Estás súper preparado para brillar este sábado 14 de noviembre.";
+    let encouragement = `¡Excelente trabajo, ${studentNameHTML}! Estás súper preparado/a para brillar este sábado 14 de noviembre.`;
     if (totalShields >= 13) {
-      encouragement = "🌟 ¡IMPRESIONANTE, LICHU! Lograste nivel de distinción en Cambridge Pre A1 Starters. ¡El sábado la vas a romper!";
+      encouragement = `🌟 ¡IMPRESIONANTE, ${studentNameHTML.toUpperCase()}! Lograste nivel de distinción en Cambridge Pre A1 Starters. ¡El sábado la vas a romper!`;
     } else if (totalShields >= 10) {
-      encouragement = "👏 ¡Muy buen trabajo, Lichu! Mirá abajo las explicaciones de cada pregunta para sumar todavía más escudos.";
+      encouragement = `👏 ¡Muy buen trabajo, ${studentNameHTML}! Mirá abajo las explicaciones de cada pregunta para sumar todavía más escudos.`;
     } else {
-      encouragement = "💪 ¡Buen entrenamiento, Lichu! En Cambridge nunca se reprueba: podés completar o corregir cualquier parte abajo para ganar los 15 escudos.";
+      encouragement = `💪 ¡Buen entrenamiento, ${studentNameHTML}! En Cambridge nunca se reprueba: podés completar o corregir cualquier parte abajo para ganar los 15 escudos.`;
     }
 
     container.innerHTML = `
@@ -2660,7 +2699,7 @@
           <div>
             <span class="status-pill example">🏆 REPORTE OFICIAL DE ESCUDOS · ${getVolData().title.toUpperCase()}</span>
             <h1 class="booklet-part-title" style="text-align:left;margin-top:0.35rem;">
-              Resultados de ${DATA.student.name} ("${DATA.student.nickname}")
+              Resultados de ${studentNameHTML}
             </h1>
             <p style="color:#334155;font-size:1rem;margin-top:0.2rem;">${encouragement}</p>
           </div>
@@ -2700,7 +2739,7 @@
             <h3 style="font-family:var(--font-heading);font-size:1.25rem;">🗣️ Speaking</h3>
             ${renderShieldsRowHTML(spShields)}
             <div style="font-weight:800;font-size:1.05rem;color:#1e293b;">
-              ${spShields} de 5 Escudos (Evaluado con Papá)
+              ${spShields} de 5 Escudos (Práctica en familia)
             </div>
             <button type="button" class="btn-secondary" style="margin-top:0.65rem;" data-goto-mod="speaking" data-goto-part="part1">
               Ir a Speaking
@@ -2851,7 +2890,7 @@
     const targetVal = normalizeText(state.dictationTarget);
     if (userVal === targetVal) {
       fb.style.color = "#15803d";
-      fb.textContent = `✔ ¡Excelente, Lichu! Era "${state.dictationTarget}" (${state.dictationTarget.toUpperCase().split("").join("-")}).`;
+      fb.textContent = `✔ ¡Excelente, ${getStudentName()}! Era "${state.dictationTarget}" (${state.dictationTarget.toUpperCase().split("").join("-")}).`;
       speakEnglish(`Great job! ${state.dictationTarget}.`, 0.95);
     } else {
       fb.style.color = "#dc2626";
@@ -2860,14 +2899,77 @@
   }
 
   // --------------------------------------------------------------------------
-  // 12. INICIALIZACIÓN Y EVENTOS GLOBALES
+  // 12. MODAL POPUP DE BIENVENIDA (PREGUNTA EL NOMBRE EN CADA CARGA)
+  // --------------------------------------------------------------------------
+  function openWelcomeNameModal() {
+    const modal = document.getElementById("welcome-name-modal");
+    const inp = document.getElementById("input-student-name");
+    if (!modal) return;
+    modal.classList.remove("hidden");
+    if (inp) {
+      inp.value = state.studentName || "";
+      setTimeout(() => {
+        inp.focus();
+        inp.select();
+      }, 60);
+    }
+  }
+
+  function handleWelcomeNameSubmit(e) {
+    if (e) e.preventDefault();
+    const inp = document.getElementById("input-student-name");
+    const rawName = inp ? inp.value.trim() : "";
+    if (!rawName) {
+      inp?.focus();
+      return;
+    }
+    state.studentName = rawName;
+    document.getElementById("welcome-name-modal")?.classList.add("hidden");
+    updateStudentNameUI();
+    renderMain();
+  }
+
+  function openHowToModal() {
+    document.getElementById("how-to-modal")?.classList.remove("hidden");
+  }
+
+  function closeHowToModal() {
+    document.getElementById("how-to-modal")?.classList.add("hidden");
+  }
+
+  // --------------------------------------------------------------------------
+  // 13. INICIALIZACIÓN Y EVENTOS GLOBALES
   // --------------------------------------------------------------------------
   function initApp() {
     loadState();
+    updateStudentNameUI();
     renderZiplocToolbar();
     updateTopBadges();
     updateTimerUI();
     renderMain();
+
+    // Siempre preguntar el nombre al cargar index.html
+    openWelcomeNameModal();
+
+    document.getElementById("welcome-name-form")?.addEventListener("submit", handleWelcomeNameSubmit);
+    document.getElementById("btn-change-name")?.addEventListener("click", openWelcomeNameModal);
+
+    // Manual de Procedimientos ("Cómo empezar") para Familias
+    document.getElementById("btn-how-to-modal")?.addEventListener("click", openHowToModal);
+    document.getElementById("btn-close-how-to-modal")?.addEventListener("click", closeHowToModal);
+    document.getElementById("how-to-modal")?.addEventListener("click", (e) => {
+      if (e.target.id === "how-to-modal") closeHowToModal();
+    });
+    document.getElementById("btn-howto-start-vol1")?.addEventListener("click", () => {
+      closeHowToModal();
+      switchVolume("vol1");
+      navigateTo("listening", "part1");
+    });
+    document.getElementById("btn-howto-start-vol2")?.addEventListener("click", () => {
+      closeHowToModal();
+      switchVolume("vol2");
+      navigateTo("listening", "part1");
+    });
 
     // Botón de marca -> vuelve al inicio
     document.getElementById("btn-home")?.addEventListener("click", () => {
