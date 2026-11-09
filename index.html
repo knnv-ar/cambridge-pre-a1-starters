@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cambridge Pre A1 Starters — Práctica Interactiva de Lichu (2026)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,600&family=Patrick+Hand&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <!-- BARRA SUPERIOR DE NAVEGACIÓN -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button id="btn-home" class="brand-btn" title="Volver al inicio">
+        <span class="brand-shield">🛡️</span>
+        <div class="brand-text">
+          <span class="brand-tag">CAMBRIDGE ENGLISH</span>
+          <span class="brand-title">Pre A1 Starters · <strong>Lichu</strong></span>
+        </div>
+      </button>
+
+      <!-- Selector rápido de Volumen -->
+      <div class="volume-switcher" role="group" aria-label="Seleccionar Volumen">
+        <button id="btn-vol1" class="vol-pill active" data-vol="vol1">📘 Volumen 1</button>
+        <button id="btn-vol2" class="vol-pill" data-vol="vol2">📙 Volumen 2</button>
+      </div>
+    </div>
+
+    <!-- Selector central de Módulo (Listening / R&W / Speaking / Resultados) -->
+    <nav id="module-nav" class="module-nav" aria-label="Módulos del examen">
+      <button class="mod-tab" data-mod="home">🏠 Inicio</button>
+      <button class="mod-tab" data-mod="listening">🎧 Listening <span class="mod-badge" id="badge-listening">0/20</span></button>
+      <button class="mod-tab" data-mod="rw">✏️ Reading &amp; Writing <span class="mod-badge" id="badge-rw">0/25</span></button>
+      <button class="mod-tab" data-mod="speaking">🗣️ Speaking <span class="mod-badge" id="badge-speaking">Papá + Lichu</span></button>
+      <button class="mod-tab mod-tab-results" data-mod="results">🏆 Escudos</button>
+    </nav>
+
+    <div class="topbar-right">
+      <!-- Cronómetro de 20 minutos para simular el tiempo real -->
+      <div id="timer-widget" class="timer-widget hidden" title="Cronómetro orientativo de 20 minutos">
+        <span class="timer-icon">⏱️</span>
+        <span id="timer-display" class="timer-display">20:00</span>
+        <button id="btn-timer-toggle" class="timer-btn" title="Pausar / Reanudar">⏸️</button>
+        <button id="btn-timer-reset" class="timer-btn" title="Reiniciar 20 min">🔄</button>
+      </div>
+
+      <button id="btn-names-modal" class="util-btn" title="Practicar los 20 nombres oficiales deletreados">
+        🔤 <span>20 Nombres</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- CONTENEDOR PRINCIPAL -->
+  <main id="app-main" class="app-main">
+    <!-- Renderizado dinámico desde js/app.js -->
+  </main>
+
+  <!-- ESTUCHE ZIPLOC VIRTUAL (BARRA DE ÚTILES REGLAMENTARIOS) -->
+  <aside id="ziploc-bar" class="ziploc-bar" aria-label="Estuche Ziploc Virtual con útiles del examen">
+    <div class="ziploc-seal">
+      <div class="ziploc-zip-line"></div>
+      <span class="ziploc-slider"></span>
+      <span class="ziploc-title">🧰 ZIPLOC DE LICHU — Útiles Oficiales:</span>
+      <span id="active-tool-indicator" class="active-tool-indicator">Útil activo: ✏️ PENCIL (Lápiz negro)</span>
+      <button id="btn-toggle-ziploc" class="ziploc-collapse-btn" title="Minimizar/Expandir estuche">▼</button>
+    </div>
+    <div id="ziploc-tools" class="ziploc-tools">
+      <!-- Lápiz negro, goma y los 9 lápices de colores se inyectan dinámicamente -->
+    </div>
+  </aside>
+
+  <!-- MODAL DE REPASO DE LOS 20 NOMBRES OFICIALES Y CONSEJOS -->
+  <div id="names-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="names-modal-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 id="names-modal-title">🔤 Los 20 Nombres Propios Oficiales de Starters + Consejos</h2>
+        <button id="btn-close-names-modal" class="modal-close-btn" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-intro">
+          En <strong>Listening Part 1</strong> y <strong>Part 2</strong> solo pueden aparecer estos <strong>20 nombres oficiales</strong>. Tocá cualquier nombre para escuchar cómo suena y cómo se deletrea en inglés británico (<code>en-GB</code>), o probá el dictado rápido:
+        </p>
+        <div class="dictation-box">
+          <div class="dictation-controls">
+            <button id="btn-play-dictation" class="btn-primary">🔊 Escuchar nombre sorpresa deletreado</button>
+            <input id="input-dictation" type="text" class="exam-input dictation-input" placeholder="Escribí el nombre..." autocomplete="off" spellcheck="false" />
+            <button id="btn-check-dictation" class="btn-secondary">Comprobar</button>
+          </div>
+          <div id="dictation-feedback" class="dictation-feedback"></div>
+        </div>
+        <div id="official-names-grid" class="names-grid"></div>
+
+        <hr class="modal-divider" />
+        <h3>🎯 5 Reglas de Oro para este Sábado 14 de Noviembre</h3>
+        <ul class="tips-list">
+          <li><strong>Listening Part 1 (Líneas):</strong> Siempre sobra 1 nombre que no se menciona. Hacé líneas claras desde el nombre hasta la persona.</li>
+          <li><strong>Listening Part 2 (Deletreo y Números):</strong> Los números los podés escribir con cifras (ej. <code>15</code> o <code>8</code>), ¡es más rápido y seguro que escribir la palabra!</li>
+          <li><strong>Listening Part 4 (Colorear):</strong> Siempre sobra 1 objeto sin pintar. No hace falta pintar perfecto como en plástica: con que se vea claro el color correcto en el objeto correcto, suma el punto completo.</li>
+          <li><strong>Reading &amp; Writing Part 3 (Anagramas):</strong> Tachá cada letra de la jaula o del libro a medida que la escribís en los guiones para no olvidar letras dobles (como en <code>hippo</code>, <code>paper</code>, <code>eraser</code> o <code>chicken</code>).</li>
+          <li><strong>Reading &amp; Writing Part 5 (Historieta):</strong> La respuesta es <strong>una sola palabra</strong> (o un número). Fijate que palabras como <code>a</code>, <code>the</code> o <code>in the</code> ya vienen impresas antes de la línea.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/data/exam-data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
