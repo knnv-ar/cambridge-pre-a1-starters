@@ -104,7 +104,7 @@
     }
     const ziplocTitleEl = document.getElementById("ziploc-title-text");
     if (ziplocTitleEl) {
-      ziplocTitleEl.textContent = `🧰 ZIPLOC DE ${safeName.toUpperCase()} — Útiles Oficiales:`;
+      ziplocTitleEl.textContent = `🧰 ZIPLOC DE ${safeName.toUpperCase()}`;
     }
     document.title = `Cambridge Pre A1 Starters — Práctica de ${safeName} (2026)`;
   }
@@ -460,17 +460,18 @@
     if (!container) return;
 
     bar.classList.toggle("collapsed", state.ziplocCollapsed);
+    document.body.classList.toggle("ziploc-is-collapsed", state.ziplocCollapsed);
     if (toggleBtn) {
-      toggleBtn.textContent = state.ziplocCollapsed ? "▲ Expandir" : "▼";
+      toggleBtn.textContent = state.ziplocCollapsed ? "Útiles ▶" : "◀";
     }
 
     const currentToolObj = DATA.pencilCase.find((t) => t.id === state.activeTool) || DATA.pencilCase[0];
     if (indicator) {
       const swatch =
         currentToolObj.type === "color"
-          ? `<span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:${currentToolObj.hex};border:1px solid #000;vertical-align:middle;margin-right:4px;"></span>`
+          ? `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${currentToolObj.hex};border:1px solid #000;vertical-align:middle;margin-right:4px;"></span>`
           : `${currentToolObj.icon || "✏️"} `;
-      indicator.innerHTML = `Útil en mano: ${swatch}<strong>${currentToolObj.label}</strong> (${currentToolObj.es})`;
+      indicator.innerHTML = `${swatch}<strong>${currentToolObj.label.replace(" / VIOLET", "")}</strong>`;
     }
 
     container.innerHTML = DATA.pencilCase
@@ -482,8 +483,10 @@
                   data-tool-id="${tool.id}"
                   title="${tool.label} — ${tool.es}">
             ${renderPencilSVG(tool)}
-            <span class="pencil-name">${tool.label.replace(" / VIOLET", "")}</span>
-            <span class="pencil-es">${tool.es}</span>
+            <div class="pencil-info">
+              <span class="pencil-name">${tool.label.replace(" / VIOLET", "")}</span>
+              <span class="pencil-es">${tool.es}</span>
+            </div>
           </button>
         `;
       })
@@ -515,8 +518,18 @@
   }
 
   // --------------------------------------------------------------------------
-  // 4. CRONÓMETRO ORIENTATIVO DE 20 MINUTOS Y BARRA SUPERIOR
+  // 4. CONTADOR DE TIEMPO POR PUNTO (20 MIN PUNTOS 1 Y 2, 7 MIN PUNTO 3) Y POPUPS
   // --------------------------------------------------------------------------
+  const STAGE_TIMER_CONFIG = {
+    listening: { minutes: 20, badge: "1. 🎧 Listening" },
+    rw: { minutes: 20, badge: "2. ✏️ Reading & Writing" },
+    speaking: { minutes: 7, badge: "3. 🗣️ Speaking" }
+  };
+
+  function getCurrentStageMinutes(mod) {
+    return STAGE_TIMER_CONFIG[mod || state.currentMod]?.minutes || 20;
+  }
+
   function formatTime(sec) {
     const m = Math.floor(sec / 60);
     const s = sec % 60;
@@ -529,37 +542,126 @@
     const toggleBtn = document.getElementById("btn-timer-toggle");
     if (!widget || !display || !toggleBtn) return;
 
-    const showTimer = state.currentMod === "listening" || state.currentMod === "rw";
-    widget.classList.toggle("hidden", !showTimer);
+    widget.classList.remove("hidden");
+    widget.classList.toggle("running", Boolean(state.timer.running));
+    widget.classList.toggle(
+      "warning",
+      Boolean(state.timer.running && state.timer.secondsLeft > 0 && state.timer.secondsLeft <= 60)
+    );
     display.textContent = formatTime(state.timer.secondsLeft);
     toggleBtn.textContent = state.timer.running ? "⏸️" : "▶️";
   }
 
-  function toggleTimer() {
-    if (state.timer.running) {
+  function stopTimer() {
+    if (state.timer.intervalId) {
       clearInterval(state.timer.intervalId);
-      state.timer.running = false;
-    } else {
-      state.timer.running = true;
-      state.timer.intervalId = setInterval(() => {
-        if (state.timer.secondsLeft > 0) {
-          state.timer.secondsLeft--;
-          updateTimerUI();
-        } else {
-          clearInterval(state.timer.intervalId);
-          state.timer.running = false;
-          updateTimerUI();
-        }
-      }, 1000);
+      state.timer.intervalId = null;
     }
+    state.timer.running = false;
     updateTimerUI();
   }
 
-  function resetTimer() {
-    clearInterval(state.timer.intervalId);
-    state.timer.running = false;
-    state.timer.secondsLeft = 20 * 60;
+  function prepareStageTimer(mod) {
+    stopTimer();
+    const mins = getCurrentStageMinutes(mod);
+    state.timer.secondsLeft = mins * 60;
     updateTimerUI();
+  }
+
+  function startStageCountdown() {
+    stopTimer();
+    if (state.timer.secondsLeft <= 0) {
+      state.timer.secondsLeft = getCurrentStageMinutes(state.currentMod) * 60;
+    }
+    state.timer.running = true;
+    updateTimerUI();
+
+    state.timer.intervalId = setInterval(() => {
+      if (state.timer.secondsLeft > 0) {
+        state.timer.secondsLeft--;
+        updateTimerUI();
+        if (state.timer.secondsLeft <= 0) {
+          handleStageTimeExpired();
+        }
+      } else {
+        handleStageTimeExpired();
+      }
+    }, 1000);
+  }
+
+  function handleStageTimeExpired() {
+    stopTimer();
+    const audioEl = document.getElementById("listening-audio");
+    if (audioEl && !audioEl.paused) {
+      audioEl.pause();
+    }
+    openStageTimeUpModal();
+  }
+
+  function toggleTimer() {
+    if (state.timer.running) {
+      stopTimer();
+    } else {
+      startStageCountdown();
+    }
+  }
+
+  function resetTimer() {
+    prepareStageTimer(state.currentMod);
+  }
+
+  function closeStageModals() {
+    document.getElementById("stage-start-modal")?.classList.add("hidden");
+    document.getElementById("stage-timeup-modal")?.classList.add("hidden");
+    document.body.classList.remove("stage-blur-active");
+  }
+
+  function openStageStartModal(mod) {
+    const cfg = STAGE_TIMER_CONFIG[mod];
+    if (!cfg) return;
+    const modal = document.getElementById("stage-start-modal");
+    const badgeEl = document.getElementById("stage-start-badge");
+    const textEl = document.getElementById("stage-start-text");
+    const startBtn = document.getElementById("btn-stage-start");
+    if (!modal || !textEl) return;
+
+    document.getElementById("stage-timeup-modal")?.classList.add("hidden");
+    if (badgeEl) {
+      badgeEl.textContent = `${cfg.badge} · ${getVolData().badge}`;
+    }
+    textEl.textContent = `Tenés ${cfg.minutes} minutos máximo para completar este punto.`;
+
+    document.body.classList.add("stage-blur-active");
+    modal.classList.remove("hidden");
+    setTimeout(() => startBtn?.focus(), 50);
+  }
+
+  function openStageTimeUpModal() {
+    const modal = document.getElementById("stage-timeup-modal");
+    const nextBtn = document.getElementById("btn-stage-timeup-next");
+    if (!modal) return;
+
+    document.getElementById("stage-start-modal")?.classList.add("hidden");
+    document.body.classList.add("stage-blur-active");
+    modal.classList.remove("hidden");
+    setTimeout(() => nextBtn?.focus(), 50);
+  }
+
+  function advanceToNextEvaluationPoint() {
+    closeStageModals();
+    if (state.currentMod === "listening") {
+      getVolState().checkedAnswers.listening = true;
+      saveState();
+      navigateTo("rw", "part1", true);
+    } else if (state.currentMod === "rw") {
+      getVolState().checkedAnswers.rw = true;
+      saveState();
+      navigateTo("speaking", undefined, true);
+    } else if (state.currentMod === "speaking") {
+      getVolState().checkedAnswers.speaking = true;
+      saveState();
+      navigateTo("results");
+    }
   }
 
   function updateTopBadges() {
@@ -603,18 +705,33 @@
   // --------------------------------------------------------------------------
   // 5. NAVEGACIÓN PRINCIPAL Y RENDERIZADO DE VISTAS
   // --------------------------------------------------------------------------
-  function navigateTo(mod, partOptional) {
+  function navigateTo(mod, partOptional, forceStagePopup) {
     if (!isModuleUnlocked(state.currentVol, mod)) {
       return;
     }
+    const isEnteringStage =
+      Boolean(STAGE_TIMER_CONFIG[mod]) && (state.currentMod !== mod || Boolean(forceStagePopup));
+
     state.currentMod = mod;
     if (partOptional && (mod === "listening" || mod === "rw")) {
       state.currentPart[mod] = partOptional;
     }
+
+    if (!STAGE_TIMER_CONFIG[mod]) {
+      stopTimer();
+      closeStageModals();
+    } else if (isEnteringStage) {
+      prepareStageTimer(mod);
+    }
+
     updateTopBadges();
     updateTimerUI();
     renderMain();
     window.scrollTo({ top: 0, behavior: "smooth" });
+
+    if (isEnteringStage) {
+      openStageStartModal(mod);
+    }
   }
 
   function switchVolume(volKey) {
@@ -624,8 +741,15 @@
       state.currentMod = "home";
     }
     saveState();
-    updateTimerUI();
-    renderMain();
+    if (STAGE_TIMER_CONFIG[state.currentMod]) {
+      prepareStageTimer(state.currentMod);
+      renderMain();
+      openStageStartModal(state.currentMod);
+    } else {
+      stopTimer();
+      closeStageModals();
+      renderMain();
+    }
   }
 
   function renderMain() {
@@ -673,7 +797,7 @@
           <span class="hero-badge">🇬🇧 CAMBRIDGE ENGLISH · PRE A1 STARTERS · 3.º GRADO</span>
           <h1 class="hero-title">¡Hola, ${studentNameHTML}! 🦁✨<br/>Tu simulador oficial para el sábado</h1>
           <p class="hero-subtitle">
-            Acá tenés los <strong>2 cuadernillos oficiales completos de Cambridge</strong> (Volumen 1 y Volumen 2) tal como los vas a ver en papel este sábado, junto con tu <strong>estuche Ziploc virtual</strong> acá abajo con el lápiz negro, la goma y los <strong>9 lápices de colores reglamentarios</strong>.
+            Acá tenés los <strong>2 cuadernillos oficiales completos de Cambridge</strong> (Volumen 1 y Volumen 2) tal como los vas a ver en papel este sábado, junto con tu <strong>estuche Ziploc virtual</strong> a la izquierda con el lápiz negro, la goma y los <strong>9 lápices de colores reglamentarios</strong>.
           </p>
           <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:0.9rem;">
             <button type="button" class="btn-primary" id="hero-start-btn" style="background:#fde047;color:#1e293b;">
@@ -705,7 +829,7 @@
           🎒 Checklist de la Ziploc real de ${studentNameHTML} para llevar el sábado al colegio
         </h2>
         <p style="font-size:0.95rem;color:#334155;margin-bottom:0.85rem;">
-          Tocá cada útil en tu barra inferior para probarlo. Asegurate de tener estos mismos útiles reales listos en tu bolsa transparente:
+          Tocá cada útil en tu estuche lateral izquierdo para probarlo. Asegurate de tener estos mismos útiles reales listos en tu bolsa transparente:
         </p>
         <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
           ${DATA.pencilCase
@@ -3041,11 +3165,20 @@
       });
     });
 
-    // Pestañas de módulos (Inicio / Listening / R&W / Speaking / Escudos)
+    // Pestañas de módulos (1. Listening / 2. R&W / 3. Speaking / Resultados)
     document.querySelectorAll(".mod-tab").forEach((btn) => {
       btn.addEventListener("click", () => {
-        navigateTo(btn.getAttribute("data-mod"));
+        navigateTo(btn.getAttribute("data-mod"), undefined, true);
       });
+    });
+
+    // Popups de inicio de tiempo por punto y tiempo cumplido
+    document.getElementById("btn-stage-start")?.addEventListener("click", () => {
+      closeStageModals();
+      startStageCountdown();
+    });
+    document.getElementById("btn-stage-timeup-next")?.addEventListener("click", () => {
+      advanceToNextEvaluationPoint();
     });
 
     // Cronómetro

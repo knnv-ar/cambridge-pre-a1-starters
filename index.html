@@ -49,12 +49,12 @@
     </nav>
 
     <div class="topbar-right">
-      <!-- Cronómetro de 20 minutos para simular el tiempo real -->
-      <div id="timer-widget" class="timer-widget hidden" title="Cronómetro orientativo de 20 minutos">
+      <!-- Contador de tiempo por etapa (20 min para 1 y 2, 7 min para 3) -->
+      <div id="timer-widget" class="timer-widget" title="Contador de tiempo máximo para completar el punto actual">
         <span class="timer-icon">⏱️</span>
         <span id="timer-display" class="timer-display">20:00</span>
-        <button id="btn-timer-toggle" class="timer-btn" title="Pausar / Reanudar">⏸️</button>
-        <button id="btn-timer-reset" class="timer-btn" title="Reiniciar 20 min">🔄</button>
+        <button id="btn-timer-toggle" class="timer-btn" title="Pausar / Reanudar">▶️</button>
+        <button id="btn-timer-reset" class="timer-btn" title="Reiniciar contador">🔄</button>
       </div>
     </div>
   </header>
@@ -64,17 +64,18 @@
     <!-- Renderizado dinámico desde js/app.js -->
   </main>
 
-  <!-- ESTUCHE ZIPLOC VIRTUAL (BARRA DE ÚTILES REGLAMENTARIOS) -->
+  <!-- ESTUCHE ZIPLOC VIRTUAL (CONTENEDOR VERTICAL DESPLEGABLE EN EL SECTOR IZQUIERDO) -->
   <aside id="ziploc-bar" class="ziploc-bar" aria-label="Estuche Ziploc Virtual con útiles del examen">
     <div class="ziploc-seal">
       <div class="ziploc-zip-line"></div>
-      <span class="ziploc-slider"></span>
-      <span id="ziploc-title-text" class="ziploc-title">🧰 TU ZIPLOC — Útiles Oficiales:</span>
-      <span id="active-tool-indicator" class="active-tool-indicator">Útil activo: ✏️ PENCIL (Lápiz negro)</span>
-      <button id="btn-toggle-ziploc" class="ziploc-collapse-btn" title="Minimizar/Expandir estuche">▼</button>
+      <div class="ziploc-seal-top">
+        <span id="ziploc-title-text" class="ziploc-title">🧰 ZIPLOC</span>
+        <button id="btn-toggle-ziploc" class="ziploc-collapse-btn" title="Minimizar/Expandir estuche">◀</button>
+      </div>
+      <span id="active-tool-indicator" class="active-tool-indicator">✏️ PENCIL</span>
     </div>
     <div id="ziploc-tools" class="ziploc-tools">
-      <!-- Lápiz negro, goma y los 9 lápices de colores se inyectan dinámicamente -->
+      <!-- Lápiz negro, goma y los 9 lápices de colores se inyectan dinámicamente en distribución vertical -->
     </div>
   </aside>
 
@@ -155,7 +156,7 @@
                 <li><strong>Part 1 (Unir con líneas):</strong> Con el lápiz negro (<code>PENCIL</code>), arrastrar una línea desde el nombre hasta la persona correcta en el dibujo (sobra 1 nombre).</li>
                 <li><strong>Part 2 (Nombres y números):</strong> Escuchar el deletreo letra por letra o el número y escribirlo. Los números se pueden escribir con cifras (ej. <code>15</code>) o con palabras (<code>fifteen</code>).</li>
                 <li><strong>Part 3 (Tilde A, B o C):</strong> Escuchar y hacer clic en el casillero <code>A</code>, <code>B</code> o <code>C</code> para poner un tilde (<code>✔</code>).</li>
-                <li><strong>Part 4 (Colorear):</strong> Seleccionar uno de los <strong>9 lápices de colores</strong> en el estuche Ziploc de abajo y pintar el objeto que indica el audio (globos en Vol. 1, ananás en Vol. 2).</li>
+                <li><strong>Part 4 (Colorear):</strong> Seleccionar uno de los <strong>9 lápices de colores</strong> en el estuche Ziploc de la izquierda y pintar el objeto que indica el audio (globos en Vol. 1, ananás en Vol. 2).</li>
               </ul>
             </div>
 
@@ -188,7 +189,7 @@
         <div class="howto-section-card">
           <h3>3️⃣ El Estuche Ziploc Virtual y los Resultados con Escudos de Cambridge</h3>
           <ul class="tips-list">
-            <li><strong>🧰 Barra inferior Ziploc:</strong> Siempre tienen a mano el lápiz negro (<code>PENCIL</code>), la goma (<code>ERASER</code>) y los <strong>9 colores oficiales</strong> que pide la citación del colegio (<code>RED</code>, <code>BLUE</code>, <code>YELLOW</code>, <code>GREEN</code>, <code>ORANGE</code>, <code>PURPLE/VIOLET</code>, <code>PINK</code>, <code>BROWN</code>, <code>GREY</code>). Para borrar una línea, un color o un casillero, basta con elegir la goma (<code>ERASER</code>) y tocarlo.</li>
+            <li><strong>🧰 Estuche lateral Ziploc (a la izquierda):</strong> Siempre tienen a mano el lápiz negro (<code>PENCIL</code>), la goma (<code>ERASER</code>) y los <strong>9 colores oficiales</strong> que pide la citación del colegio (<code>RED</code>, <code>BLUE</code>, <code>YELLOW</code>, <code>GREEN</code>, <code>ORANGE</code>, <code>PURPLE/VIOLET</code>, <code>PINK</code>, <code>BROWN</code>, <code>GREY</code>). Para borrar una línea, un color o un casillero, basta con elegir la goma (<code>ERASER</code>) y tocarlo.</li>
             <li><strong>🏆 Resultados y Escudos (Sin aplazos):</strong> En Cambridge Pre A1 Starters ningún niño o niña desaprueba. Una vez finalizadas las 3 etapas (<code>1. Listening</code>, <code>2. Reading &amp; Writing</code> y <code>3. Speaking</code>), se habilita el botón <strong>🏆 Resultados</strong>, que corrige automáticamente contra la clave oficial (<em>Marking Key</em>), entrega de <strong>1 a 5 Escudos por habilidad</strong> (máximo 15 escudos) y explica en castellano cada respuesta.</li>
           </ul>
         </div>
@@ -239,6 +240,33 @@
           <li><strong>Reading &amp; Writing Part 5 (Historieta):</strong> La respuesta es <strong>una sola palabra</strong> (o un número). Fijate que palabras como <code>a</code>, <code>the</code> o <code>in the</code> ya vienen impresas antes de la línea.</li>
         </ul>
       </div>
+    </div>
+  </div>
+
+  <!-- MODAL POPUP DE INICIO DE PUNTO DE EVALUACIÓN (CON DIFUMINADO DE VIEWPORT) -->
+  <div id="stage-start-modal" class="modal-backdrop stage-blur-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="stage-start-text">
+    <div class="modal-card stage-popup-card">
+      <div id="stage-start-badge" class="stage-popup-badge">1. 🎧 Listening</div>
+      <div class="stage-popup-icon">⏱️</div>
+      <p id="stage-start-text" class="stage-popup-message">
+        Tenés 20 minutos máximo para completar este punto.
+      </p>
+      <button type="button" id="btn-stage-start" class="btn-primary stage-popup-btn">
+        ¡Empecemos!
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL POPUP DE TIEMPO CUMPLIDO (CON DIFUMINADO DE VIEWPORT) -->
+  <div id="stage-timeup-modal" class="modal-backdrop stage-blur-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="stage-timeup-text">
+    <div class="modal-card stage-popup-card">
+      <div class="stage-popup-icon">⏰</div>
+      <p id="stage-timeup-text" class="stage-popup-message">
+        ¡El tiempo se cumplió!
+      </p>
+      <button type="button" id="btn-stage-timeup-next" class="btn-primary stage-popup-btn">
+        ¡Vamos al siguiente punto!
+      </button>
     </div>
   </div>
 
