@@ -402,25 +402,9 @@
     for (let i = 1; i <= 5; i++) {
       const isEarned = i <= earnedCount;
       html += `
-        <svg class="cambridge-shield-svg ${isEarned ? "earned" : "unearned"}" viewBox="0 0 64 74" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M32 3L7 13V34C7 51.5 17.7 66.2 32 71C46.3 66.2 57 51.5 57 34V13L32 3Z"
-                fill="${isEarned ? "url(#goldGrad)" : "#cbd5e1"}"
-                stroke="${isEarned ? "#b45309" : "#64748b"}"
-                stroke-width="3.5"/>
-          <path d="M32 10L13 18V34C13 47.6 21.1 59.4 32 63.6C42.9 59.4 51 47.6 51 34V18L32 10Z"
-                stroke="${isEarned ? "#fef08a" : "#e2e8f0"}"
-                stroke-width="1.5"
-                stroke-dasharray="3 2"/>
-          <path d="M32 19L35.4 26.2L43.3 27.3L37.6 32.8L38.9 40.7L32 37L25.1 40.7L26.4 32.8L20.7 27.3L28.6 26.2L32 19Z"
-                fill="${isEarned ? "#fffbeb" : "#f8fafc"}"/>
-          <defs>
-            <linearGradient id="goldGrad" x1="7" y1="3" x2="57" y2="71" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#fde047"/>
-              <stop offset="50%" stop-color="#f59e0b"/>
-              <stop offset="100%" stop-color="#d97706"/>
-            </linearGradient>
-          </defs>
-        </svg>
+        <img src="documentation/cambridge-coat-arms.svg"
+             alt="Escudo de Cambridge ${i}"
+             class="cambridge-shield-svg ${isEarned ? "earned" : "unearned"}" />
       `;
     }
     html += "</div>";
@@ -783,6 +767,20 @@
     return { number: "14 Nov 2026", label: "Cambridge Pre A1 Starters" };
   }
 
+  function resetVolume(volKey) {
+    const targetVol = volKey || state.currentVol;
+    if (!DATA.volumes[targetVol]) return;
+    state.volumes[targetVol] = createEmptyVolumeState();
+    state.currentPart = {
+      listening: "part1",
+      rw: "part1"
+    };
+    state.activeClozeBlank = 1;
+    state.activeSpeakingCard = null;
+    saveState();
+    navigateTo("home");
+  }
+
   function renderHomeView(container) {
     const countdown = getDaysUntilExam();
     const vol1L = evaluateListening("vol1");
@@ -794,14 +792,17 @@
     container.innerHTML = `
       <section class="hero-card">
         <div class="hero-content">
-          <span class="hero-badge">🇬🇧 CAMBRIDGE ENGLISH · PRE A1 STARTERS · 3.º GRADO</span>
+          <span class="hero-badge"><img src="documentation/cambridge-coat-arms.svg" alt="" class="inline-coat-arms-xs" /> CAMBRIDGE ENGLISH · PRE A1 STARTERS · 3.º GRADO</span>
           <h1 class="hero-title">¡Hola, ${studentNameHTML}! 🦁✨<br/>Tu simulador oficial para el sábado</h1>
           <p class="hero-subtitle">
             Acá tenés los <strong>2 cuadernillos oficiales completos de Cambridge</strong> (Volumen 1 y Volumen 2) tal como los vas a ver en papel este sábado, junto con tu <strong>estuche Ziploc virtual</strong> a la izquierda con el lápiz negro, la goma y los <strong>9 lápices de colores reglamentarios</strong>.
           </p>
-          <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:0.9rem;">
+          <div style="display:flex;flex-direction:column;align-items:flex-start;gap:0.75rem;margin-top:0.9rem;">
             <button type="button" class="btn-primary" id="hero-start-btn" style="background:#fde047;color:#1e293b;">
               🚀 Empezar 1. Listening (${DATA.volumes[state.currentVol].badge})
+            </button>
+            <button type="button" class="btn-secondary" id="hero-reset-vol-btn" style="background:rgba(239,68,68,0.22);color:#fee2e2;border-color:rgba(252,165,165,0.65);">
+              🗑️ Reiniciar respuestas del ${DATA.volumes[state.currentVol].badge}
             </button>
             <button type="button" class="btn-secondary" id="hero-howto-btn" style="background:rgba(255,255,255,0.22);color:#fff;border-color:rgba(255,255,255,0.5);">
               📖 Cómo empezar (Guía para Familias + 20 Nombres)
@@ -813,7 +814,7 @@
           <div class="countdown-label">${countdown.label}</div>
           <hr style="border:none;border-top:1px solid rgba(255,255,255,0.25);margin:0.65rem 0;" />
           <div style="font-size:0.8rem;opacity:0.95;">
-            🛡️ Máximo premio: <strong>15 Escudos</strong><br/>
+            <img src="documentation/cambridge-coat-arms.svg" alt="Escudo de Cambridge" class="inline-coat-arms-sm" /> Máximo premio: <strong>15 Escudos</strong><br/>
             (5 Listening · 5 R&amp;W · 5 Speaking)
           </div>
         </div>
@@ -848,6 +849,9 @@
 
     document.getElementById("hero-start-btn")?.addEventListener("click", () => {
       navigateTo("listening", "part1");
+    });
+    document.getElementById("hero-reset-vol-btn")?.addEventListener("click", () => {
+      resetVolume(state.currentVol);
     });
     document.getElementById("hero-howto-btn")?.addEventListener("click", () => {
       openHowToModal();
@@ -2683,7 +2687,7 @@
 
               <div style="margin-top:1.1rem;padding-top:0.9rem;border-top:1.5px dashed #cbd5e1;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
                 <div>
-                  <strong>🛡️ Escudos de Speaking otorgados a ${studentNameHTML}:</strong>
+                  <strong><img src="documentation/cambridge-coat-arms.svg" alt="Escudo de Cambridge" class="inline-coat-arms-sm" /> Escudos de Speaking otorgados a ${studentNameHTML}:</strong>
                   <span style="font-size:0.86rem;color:#475569;margin-left:0.4rem;">(Seleccioná de 1 a 5 escudos para sumar al resultado final)</span>
                 </div>
                 <div style="display:flex;align-items:center;gap:0.45rem;">
@@ -2693,7 +2697,7 @@
                       <button type="button"
                               class="btn-chip ${spState.shieldsAwarded === n ? "active" : ""}"
                               data-sp-shields="${n}">
-                        ${n} 🛡️
+                        ${n} <img src="documentation/cambridge-coat-arms.svg" alt="Escudos" class="inline-coat-arms-xs" />
                       </button>
                     `
                     )
@@ -2887,10 +2891,11 @@
             <p style="color:#334155;font-size:1rem;margin-top:0.2rem;">${encouragement}</p>
           </div>
           <div style="text-align:center;background:#fefce8;border:2px solid #facc15;border-radius:16px;padding:0.75rem 1.25rem;">
-            <div style="font-family:var(--font-heading);font-size:2rem;color:#b45309;line-height:1;">
-              ${totalShields} / 15 🛡️
+            <div style="font-family:var(--font-heading);font-size:2rem;color:#b45309;line-height:1;display:inline-flex;align-items:center;gap:0.35rem;">
+              <span>${totalShields} / 15</span>
+              <img src="documentation/cambridge-coat-arms.svg" alt="Escudo de Cambridge" class="inline-coat-arms" />
             </div>
-            <div style="font-size:0.8rem;font-weight:800;color:#854d0e;">ESCUDOS TOTALES</div>
+            <div style="font-size:0.8rem;font-weight:800;color:#854d0e;margin-top:0.2rem;">ESCUDOS TOTALES</div>
           </div>
         </div>
 
@@ -2963,9 +2968,7 @@
     });
 
     document.getElementById("btn-reset-volume")?.addEventListener("click", () => {
-      state.volumes[state.currentVol] = createEmptyVolumeState();
-      saveState();
-      navigateTo("home");
+      resetVolume(state.currentVol);
     });
   }
 

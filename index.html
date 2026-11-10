@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cambridge Pre A1 Starters — Simulador Interactivo (2026)</title>
+  <link rel="icon" type="image/svg+xml" href="documentation/cambridge-coat-arms.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,600&family=Patrick+Hand&display=swap" rel="stylesheet">
@@ -14,7 +15,7 @@
   <header class="topbar">
     <div class="topbar-left">
       <button id="btn-home" class="brand-btn" title="Volver al inicio">
-        <span class="brand-shield">🛡️</span>
+        <img src="documentation/cambridge-coat-arms.svg" alt="Escudo de Cambridge" class="brand-shield" />
         <div class="brand-text">
           <span class="brand-tag">CAMBRIDGE ENGLISH</span>
           <span class="brand-title">Pre A1 Starters · <strong id="header-student-name">Alumno/a</strong></span>
@@ -83,8 +84,9 @@
   <div id="welcome-name-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="welcome-modal-title">
     <div class="modal-card" style="max-width: 500px; text-align: center;">
       <div class="modal-header" style="justify-content: center; background: linear-gradient(135deg, #1e3a8a 0%, #6b4e8a 100%);">
-        <h2 id="welcome-modal-title" style="font-family: var(--font-heading); font-size: 1.45rem;">
-          🛡️ Welcome to Pre A1 Starters! 🇬🇧
+        <h2 id="welcome-modal-title" style="font-family: var(--font-heading); font-size: 1.45rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+          <img src="documentation/cambridge-coat-arms.svg" alt="Escudo de Cambridge" class="inline-coat-arms" />
+          <span>Welcome to Pre A1 Starters! 🇬🇧</span>
         </h2>
       </div>
       <form id="welcome-name-form" class="modal-body" style="padding: 1.75rem 1.5rem;">

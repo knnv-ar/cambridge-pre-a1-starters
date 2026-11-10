@@ -87,8 +87,38 @@ button, input {
   background: #f1f5f9;
 }
 .brand-shield {
-  font-size: 1.8rem;
-  filter: drop-shadow(0 2px 4px rgba(245, 158, 11, 0.35));
+  width: 34px;
+  height: 40px;
+  object-fit: contain;
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 4px rgba(15, 23, 42, 0.25));
+}
+.inline-coat-arms {
+  width: 28px;
+  height: 33px;
+  object-fit: contain;
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 4px rgba(15, 23, 42, 0.25));
+}
+.inline-coat-arms-sm {
+  width: 20px;
+  height: 24px;
+  object-fit: contain;
+  display: inline-block;
+  vertical-align: -4px;
+  flex-shrink: 0;
+}
+.inline-coat-arms-xs {
+  width: 16px;
+  height: 19px;
+  object-fit: contain;
+  display: inline-block;
+  vertical-align: -3px;
+  flex-shrink: 0;
 }
 .brand-text {
   display: flex;
@@ -1487,7 +1517,8 @@ button, input {
 }
 .cambridge-shield-svg {
   width: 44px;
-  height: 50px;
+  height: 52px;
+  object-fit: contain;
   transition: transform 0.2s;
 }
 .cambridge-shield-svg.earned {
